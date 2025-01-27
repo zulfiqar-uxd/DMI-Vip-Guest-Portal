@@ -1,274 +1,219 @@
-import { useState, useEffect } from "react";
-import Header from "@/components/Header";
 import GeneralUtils from "@/utils/GeneralUtils";
+import { useState, useRef, useEffect } from "react";
 
 const CafeOrder = () => {
-  const { language, toggleLanguage } = GeneralUtils();
+  const { language } = GeneralUtils();
 
-  // Categories and Filters Translations
-  const categories = {
-    en: ["Coffee", "Tea", "Juice", "Water"],
-    ar: ["قهوة", "شاي", "عصير", "ماء"],
-  };
+  const [selectedDrink, setSelectedDrink] = useState(null);
+  const [selectedDrinkPosition, setSelectedDrinkPosition] = useState(null);
+  const [selectedMilk, setSelectedMilk] = useState("");
+  const [note, setNote] = useState("");
+  const [orderPlaced, setOrderPlaced] = useState(false);
+  const [lastOrder, setLastOrder] = useState(null); // New state for last order
+  const drinkRefs = useRef({});
+  const customizerRef = useRef();
 
-  // Product Data
-  const products = [
-    // Coffee
-    {
-      id: 1,
-      category: "Coffee",
-      name: { en: "Arabic Coffee", ar: "القهوة العربية" },
-      description: {
-        en: "Traditional Arabic coffee flavored with cardamom.",
-        ar: "القهوة العربية التقليدية بنكهة الهيل.",
-      },
-      image: "/images/coffee.png",
-    },
-    {
-      id: 2,
-      category: "Coffee",
-      name: { en: "Flat White", ar: "فلات وايت" },
-      description: {
-        en: "Smooth espresso with velvety steamed milk.",
-        ar: "إسبريسو ناعم مع حليب مخملي مبخر.",
-      },
-      image: "/images/coffee.png",
-    },
-    {
-      id: 3,
-      category: "Coffee",
-      name: { en: "Cappuccino", ar: "كابتشينو" },
-      description: {
-        en: "Espresso with steamed milk and foam topped with cocoa.",
-        ar: "إسبريسو مع حليب مبخر ورغوة مغطاة بالكاكاو.",
-      },
-      image: "/images/coffee.png",
-    },
-    {
-      id: 4,
-      category: "Coffee",
-      name: { en: "Latte", ar: "لاتيه" },
-      description: {
-        en: "Espresso with steamed milk and a touch of foam.",
-        ar: "إسبريسو مع الحليب المبخر ولمسة من الرغوة.",
-      },
-      image: "/images/coffee.png",
-    },
-    {
-      id: 5,
-      category: "Coffee",
-      name: { en: "Hot Chocolate", ar: "شوكولاتة ساخنة" },
-      description: {
-        en: "Rich and creamy hot chocolate drink.",
-        ar: "مشروب شوكولاتة ساخنة غني ودسم.",
-      },
-      image: "/images/coffee.png",
-    },
-
-    // Tea
-    {
-      id: 6,
-      category: "Tea",
-      name: { en: "Red Tea", ar: "شاي أحمر" },
-      description: {
-        en: "Strong and flavorful red tea.",
-        ar: "شاي أحمر قوي ولذيذ.",
-      },
-      image: "/images/tea.png",
-    },
-    {
-      id: 7,
-      category: "Tea",
-      name: { en: "Green Tea", ar: "شاي أخضر" },
-      description: {
-        en: "Refreshing and healthy green tea.",
-        ar: "شاي أخضر منعش وصحي.",
-      },
-      image: "/images/tea.png",
-    },
-    {
-      id: 8,
-      category: "Tea",
-      name: { en: "Jasmine Tea", ar: "شاي الياسمين" },
-      description: {
-        en: "Aromatic tea infused with jasmine flowers.",
-        ar: "شاي عطري مملوء بزهور الياسمين.",
-      },
-      image: "/images/tea.png",
-    },
-
-    // Juice
-    {
-      id: 9,
-      category: "Juice",
-      name: { en: "Orange Juice", ar: "عصير البرتقال" },
-      description: {
-        en: "Freshly squeezed orange juice.",
-        ar: "عصير البرتقال الطازج.",
-      },
-      image: "/images/orange.png",
-    },
-    {
-      id: 10,
-      category: "Juice",
-      name: { en: "Apple Juice", ar: "عصير التفاح" },
-      description: {
-        en: "Sweet and crisp apple juice.",
-        ar: "عصير تفاح حلو ومقرمش.",
-      },
-      image: "/images/apple.png",
-    },
-    {
-      id: 11,
-      category: "Juice",
-      name: { en: "Lemonade", ar: "ليموناضة" },
-      description: {
-        en: "Fresh and tangy lemonade.",
-        ar: "ليموناضة منعشة وحامضة.",
-      },
-      image: "/images/lemonade.png",
-    },
-
-    // Water
-    {
-      id: 12,
-      category: "Water",
-      name: { en: "Still Water", ar: "مياه عادية" },
-      description: {
-        en: "Pure and refreshing still water.",
-        ar: "مياه نقية ومنعشة.",
-      },
-      image: "/images/still-water.png",
-    },
-    {
-      id: 13,
-      category: "Water",
-      name: { en: "Sparkling Water", ar: "مياه فوارة" },
-      description: {
-        en: "Lightly carbonated refreshing water.",
-        ar: "مياه فوارة منعشة قليلاً.",
-      },
-      image: "/images/sparkling-water.png",
-    },
+  const drinks = [
+    { id: 1, name: "Latte", image: "/images/latte.png" },
+    { id: 2, name: "Cortado", image: "/images/cortado.png" },
+    { id: 3, name: "Black Coffee", image: "/images/black-coffee.png" },
+    { id: 4, name: "Hot Chocolate", image: "/images/hot-chocolate.png" },
+    { id: 5, name: "Cappuccino", image: "/images/cappuccino.png" },
+    { id: 6, name: "Flat White", image: "/images/flat-white.png" },
+    { id: 7, name: "Espresso", image: "/images/espresso.png" },
+    { id: 8, name: "Arabic Coffee", image: "/images/arabic-coffee.png" },
   ];
 
-  const currentFilters = categories[language];
-  const currentCategories = categories[language];
+  const milkOptions = [
+    "Full Fat Milk",
+    "Low Fat Milk",
+    "Coconut Milk",
+    "Almond Milk",
+  ];
 
-  const [activeFilter, setActiveFilter] = useState(null);
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        customizerRef.current &&
+        !customizerRef.current.contains(event.target)
+      ) {
+        resetSelection();
+      }
+    };
 
-  const handleFilterClick = (filter) => {
-    if (activeFilter === filter) {
-      setActiveFilter(null);
-      setFilteredProducts(products);
-    } else {
-      setActiveFilter(filter);
-      setFilteredProducts(
-        products.filter((product) =>
-          product.category.includes(
-            categories.en[categories[language].indexOf(filter)]
-          )
-        )
-      );
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedDrink && drinkRefs.current[selectedDrink.id]) {
+      const drinkPosition =
+        drinkRefs.current[selectedDrink.id].getBoundingClientRect();
+      setSelectedDrinkPosition(drinkPosition);
+    }
+  }, [selectedDrink]);
+
+  const resetSelection = () => {
+    setSelectedDrink(null);
+    setSelectedMilk("");
+    setNote("");
+  };
+
+  const handleOrder = () => {
+    if (!selectedMilk) {
+      alert("Please select a milk option.");
+      return;
+    }
+    setLastOrder({ drink: selectedDrink, milk: selectedMilk }); // Save the last order
+    setOrderPlaced(true);
+    setTimeout(() => {
+      setOrderPlaced(false);
+      resetSelection();
+    }, 2000);
+  };
+
+  const getCustomizerStyle = () => {
+    if (!selectedDrinkPosition) return {};
+    const { top, left, right, bottom } = selectedDrinkPosition;
+
+    switch (selectedDrink.id) {
+      case 1:
+      case 2:
+        return { top: `100px`, left: `${right + 10}px` };
+      case 3:
+      case 4:
+        return { top: `100px`, left: `${left - 300}px` };
+      case 5:
+      case 6:
+        return {
+          bottom: `100px`,
+          left: `${right + 10}px`,
+        };
+      case 7:
+      case 8:
+        return {
+          bottom: `100px`,
+          left: `${left - 300}px`,
+        };
+      default:
+        return {};
     }
   };
 
   return (
-    <div className="bg-[#FFFAF4]">
-      <Header language={language} onLanguageToggle={toggleLanguage} />
-      <main className="px-8 md:px-24 p-6">
-        {/* Breadcrumbs */}
-        <div
-          className="flex items-center gap-2 mb-8"
-          dir={language === "ar" ? "rtl" : "ltr"}
-        >
-          <a href="/" className="text-dmiRed1 font-medium hover:underline">
-            {language === "ar" ? "الرئيسية" : "Home"}
-          </a>
-          <span className="text-gray-500">{language === "ar" ? ">" : ">"}</span>
-          <span className="text-gray-500 font-medium">
-            {language === "ar" ? "طلب المقهى" : "Cafe Order"}
-          </span>
-        </div>
+    <div className="min-h-screen bg-white flex flex-col items-center py-10 relative">
+      <nav className="text-sm mb-4 w-full px-16">
+        <ul className="flex items-center space-x-2">
+          <li>
+            <a href="/home" className="text-black hover:underline">
+              Home
+            </a>
+          </li>
+          <li className="text-black">{">"}</li>
+          <li>
+            <span className="text-[#D5202F] font-medium">Cafe Order</span>
+          </li>
+        </ul>
+      </nav>
 
-        {/* Filters */}
-        <div
-          className="flex gap-4 overflow-x-auto mb-12 hideScrollbar"
-          dir={language === "ar" ? "rtl" : "ltr"}
-        >
-          {currentFilters.map((filter, index) => (
-            <button
-              key={index}
-              onClick={() => handleFilterClick(categories.en[index])}
-              className={`px-4 py-2 border border-transparent rounded-full text-nowrap text-sm font-medium ${
-                activeFilter === categories.en[index]
-                  ? "bg-dmiRed2 text-white"
-                  : "text-dmiRed1 bg-red-100 hover:border-dmiRed1 hover:bg-white"
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
-
-        {/* Grouped Products */}
-        {currentCategories.map((category, index) => {
-          const categoryProducts = filteredProducts.filter(
-            (product) => product.category === categories.en[index]
-          );
-          return categoryProducts.length > 0 ? (
-            <div key={index} className="">
-              <h2
-                className={`text-3xl font-bold text-neutral-700 mb-5`}
-                dir={language === "ar" ? "rtl" : "ltr"}
-              >
-                {category}
-              </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-                {categoryProducts.map((product) => (
-                  <div
-                    key={product.id}
-                    className="p-4 border border-dmiRed1 rounded-lg bg-white shadow-md"
-                  >
-                    <div className="w-full h-[180px] bg-gray-200 rounded-lg mb-4 relative overflow-hidden">
-                      <img
-                        src={product.image}
-                        alt={product.name[language]}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                      <button
-                        className="px-1 py-1 bg-dmiRed1 rounded-full shadow absolute bottom-4 right-4 w-8 h-8 border border-transparent flex items-center justify-center group hover:scale-125 active:border-white"
-                        aria-label="Add to cart"
-                      >
-                        <img
-                          src="/icons/plus.svg"
-                          alt="Add"
-                          className="w-4 h-4 transform group-hover:rotate-180 transition-transform duration-500"
-                        />
-                      </button>
-                    </div>
-
-                    <h3
-                      className="text-lg font-semibold"
-                      dir={language === "ar" ? "rtl" : "ltr"}
-                    >
-                      {product.name[language]}
-                    </h3>
-                    <p
-                      className="text-sm text-gray-500"
-                      dir={language === "ar" ? "rtl" : "ltr"}
-                    >
-                      {product.description[language]}
-                    </p>
-                  </div>
-                ))}
-              </div>
-              <hr className="my-12 border-gray-300" />
+      <h1 className="text-6xl mb-6">
+        Choose Your Drink<span className="text-[#D5202F]">!</span>
+      </h1>
+      <div className="w-full grid grid-cols-2 md:grid-cols-4 gap-16 px-10">
+        {drinks.map((drink) => (
+          <div
+            key={drink.id}
+            ref={(el) => (drinkRefs.current[drink.id] = el)}
+            className="flex flex-col items-center"
+          >
+            <div>
+              <img src={drink.image} alt={drink.name} className="w-64" />
             </div>
-          ) : null;
-        })}
-      </main>
+            <div
+              className="flex items-center justify-center gap-6 cursor-pointer"
+              onClick={() => setSelectedDrink(drink)}
+            >
+              <p className="mt-2 text-lg font-medium">{drink.name}</p>
+              <div
+                className={`p-2 ease-in cursor-pointer bg-[#D5202F] text-white rounded-full transform transition-transform duration-300 ${
+                  selectedDrink?.id === drink.id ? "rotate-180" : "rotate-0"
+                }`}
+              >
+                <svg
+                  width="250"
+                  height="251"
+                  viewBox="0 0 250 251"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4"
+                >
+                  <path
+                    d="M0 125.25H250M125 0.25L125 250.25"
+                    stroke="currentColor"
+                    strokeWidth="20"
+                  />
+                </svg>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {selectedDrink && selectedDrinkPosition && (
+        <div
+          ref={customizerRef}
+          className="absolute bg-white border rounded-lg shadow-lg p-4 z-10"
+          style={getCustomizerStyle()}
+        >
+          <div className="w-64">
+            <div className="flex flex-col gap-2">
+              {milkOptions.map((milk) => (
+                <button
+                  key={milk}
+                  className={`w-full text-left py-2 px-4 border rounded ${
+                    selectedMilk === milk
+                      ? "bg-red-500 text-white"
+                      : "bg-gray-100 text-black hover:bg-red-100"
+                  }`}
+                  onClick={() => setSelectedMilk(milk)}
+                >
+                  {milk}
+                </button>
+              ))}
+            </div>
+            <div className="mt-4">
+              <label className="block font-medium mb-2">NOTE:</label>
+              <textarea
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
+                className="w-full p-2 border rounded bg-gray-50"
+                rows="3"
+                placeholder="Add a note"
+              ></textarea>
+            </div>
+            <button
+              onClick={handleOrder}
+              className="w-full mt-4 pt-3 pb-2 bg-red-500 text-white rounded hover:bg-red-600"
+            >
+              ORDER
+            </button>
+          </div>
+        </div>
+      )}
+
+      {orderPlaced && lastOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20">
+          <div className="bg-white p-6 rounded-lg text-center">
+            <h2 className="text-xl font-bold mb-4">Order Placed!</h2>
+            <p className="mb-4">
+              Your <strong>{lastOrder.drink.name}</strong> with{" "}
+              <strong>{lastOrder.milk}</strong> is on its way.
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
