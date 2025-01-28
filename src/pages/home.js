@@ -1,31 +1,62 @@
 import GeneralUtils from "@/utils/GeneralUtils";
 
 const Home = () => {
-  const { language } = GeneralUtils();
-  const services = [
-    {
-      id: 1,
-      title: "Wi-Fi",
-      icon: "/icons/wifi-icon.svg",
-      link: "/wifi",
+  const { language, toggleLanguage } = GeneralUtils();
+
+  const texts = {
+    en: {
+      services: [
+        { id: 1, title: "Wi-Fi", icon: "/icons/wifi-icon.svg", link: "/wifi" },
+        {
+          id: 2,
+          title: "Hospitality",
+          icon: "/icons/cafe-icon.svg",
+          link: "/cafe-order",
+        },
+        {
+          id: 3,
+          title: "IT Support",
+          icon: "/icons/support-icon.svg",
+          link: "/support",
+        },
+      ],
+      toggle: "ع",
     },
-    {
-      id: 2,
-      title: "Hospitality",
-      icon: "/icons/cafe-icon.svg",
-      link: "/cafe-order",
+    ar: {
+      services: [
+        {
+          id: 1,
+          title: "الانترنت",
+          icon: "/icons/wifi-icon.svg",
+          link: "/wifi",
+        },
+        {
+          id: 2,
+          title: "الضيافة",
+          icon: "/icons/cafe-icon.svg",
+          link: "/cafe-order",
+        },
+        {
+          id: 3,
+          title: "الدعم",
+          icon: "/icons/support-icon.svg",
+          link: "/support",
+        },
+      ],
+      toggle: "E",
     },
-    {
-      id: 3,
-      title: "IT Support",
-      icon: "/icons/support-icon.svg",
-      link: "/support",
-    },
-  ];
+  };
+
+  if (!language) {
+    return <div></div>;
+  }
 
   return (
-    <div className="relative min-h-screen bg-white flex flex-col items-center justify-center">
-      {/* Background Images */}
+    <div
+      className={`relative min-h-screen bg-white flex flex-col items-center justify-center ${
+        language === "ar" ? "rtl" : "ltr"
+      }`}
+    >
       <img
         src="/images/bg-banner-half.png"
         alt="Left Background"
@@ -37,10 +68,24 @@ const Home = () => {
         className="absolute top-0 right-0 h-full"
       />
 
+      {/* Language Toggle Button */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          toggleLanguage();
+        }}
+        aria-label={
+          language === "en" ? "Switch to Arabic" : "Switch to English"
+        }
+        className="absolute top-4 right-4 bg-[#D5202F] text-white py-2 px-4 rounded-full shadow-md hover:opacity-90 z-10"
+      >
+        {texts[language].toggle}
+      </button>
+
       {/* Main Content */}
       <main className="z-10 flex flex-col items-center">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-          {services.map((service) => (
+          {texts[language].services.map((service) => (
             <a
               key={service.id}
               href={service.link}
