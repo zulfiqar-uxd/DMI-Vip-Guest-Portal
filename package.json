@@ -1,21 +1,23 @@
 {
-    "name": "dmi-guest-service-portal",
-    "version": "1.0.0",
-    "private": true,
-    "scripts": {
-        "dev": "next dev",
-        "build": "next build",
-        "start": "next start",
-        "lint": "next lint"
-    },
-    "dependencies": {
-        "autoprefixer": "^10.4.20",
-        "next": "latest",
-        "postcss": "^8.5.0",
-        "react": "latest",
-        "react-dom": "latest"
-    },
-    "devDependencies": {
-        "tailwindcss": "^3.4.17"
-    }
+  "name": "dmi-guest-service-portal",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "autoprefixer": "^10.4.20",
+    "dotenv": "^16.4.7",
+    "mysql": "^2.18.1",
+    "next": "latest",
+    "postcss": "^8.5.0",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.4.17"
+  }
 }
